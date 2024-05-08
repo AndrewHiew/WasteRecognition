@@ -15,7 +15,6 @@ for gpu in gpus:
 
 data_dir = 'datasets'
 
-# Assuming these are your class labels
 class_names = sorted(os.listdir(data_dir))
 
 image_exts = ['jpeg', 'jpg', 'bmp', 'png']
@@ -65,9 +64,9 @@ model.add(MaxPooling2D())
 model.add(Flatten())
 
 model.add(Dense(256, activation='relu'))
-model.add(Dense(len(class_names), activation='softmax'))  # Change here
+model.add(Dense(len(class_names), activation='softmax'))
 
-model.compile('adam', loss=tf.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])  # Change here
+model.compile('adam', loss=tf.losses.SparseCategoricalCrossentropy(), metrics=['accuracy'])
 print(model.summary())
 
 
@@ -79,7 +78,7 @@ hist = model.fit(train, epochs=20, validation_data=val, callbacks=[tensorboard_c
 # Evaluate Performance
 pre = Precision()
 recall = Recall()
-acc = SparseCategoricalAccuracy()  # Change here
+acc = SparseCategoricalAccuracy()
 
 
 print(f'Precision:{pre.result().numpy()}, Recall:{recall.result().numpy()}, Accuracy:{acc.result().numpy()}')

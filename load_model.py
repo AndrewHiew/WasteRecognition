@@ -13,7 +13,7 @@ image = cv2.imread('test.jpg')
 if image is None:
     print("Error: Failed to load the image.")
 else:
-    print("Image shape:", image.shape)  # Print the shape of the loaded image
+    print("Image shape:", image.shape)
     resize = tf.image.resize(image, (256, 256))
     if resize is None:
         print("Error: Failed to resize the image.")
@@ -21,8 +21,7 @@ else:
         predictions = model.predict(np.expand_dims(resize/255, 0))
         print(predictions)
 
-        # Optionally, interpret predictions
-        class_names = ['cellphone', 'desktop', 'laptop']  # Adjust if necessary
+        class_names = ['cellphone', 'desktop', 'laptop']
         predicted_class_index = np.argmax(predictions)
         predicted_class = class_names[predicted_class_index]
         confidence = predictions[0][predicted_class_index]
