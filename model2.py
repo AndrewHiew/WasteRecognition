@@ -66,7 +66,11 @@ val = data.skip(train_size).take(val_size)
 test = data.skip(train_size+val_size).take(test_size)
 
 
-# Build Deep Learning Model
+"""
+Model Training
+"""
+
+# Building the Model
 model = Sequential()
 
 model.add(Conv2D(32, (3,3), activation='relu', input_shape=(256,256,3)))
@@ -92,40 +96,39 @@ logdir = 'logs'
 tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=logdir)
 hist = model.fit(train, epochs=20, validation_data=val, callbacks=[tensorboard_callback])
 
-import matplotlib.pyplot as plt
+# # Get training history
+# training_loss = hist.history['loss']
+# training_accuracy = hist.history['accuracy']
 
-# Get training history
-training_loss = hist.history['loss']
-training_accuracy = hist.history['accuracy']
+# # Get validation history
+# validation_loss = hist.history['val_loss']
+# validation_accuracy = hist.history['val_accuracy']
 
-# Get validation history
-validation_loss = hist.history['val_loss']
-validation_accuracy = hist.history['val_accuracy']
+# # Plot training and validation loss
+# plt.figure(figsize=(12, 6))
+# plt.subplot(1, 2, 1)
+# plt.plot(training_loss, label='Training Loss')
+# plt.plot(validation_loss, label='Validation Loss')
+# plt.xlabel('Epoch')
+# plt.ylabel('Loss')
+# plt.title('Training and Validation Loss')
+# plt.legend()
 
-# Plot training and validation loss
-plt.figure(figsize=(12, 6))
-plt.subplot(1, 2, 1)
-plt.plot(training_loss, label='Training Loss')
-plt.plot(validation_loss, label='Validation Loss')
-plt.xlabel('Epoch')
-plt.ylabel('Loss')
-plt.title('Training and Validation Loss')
-plt.legend()
+# # Plot training and validation accuracy
+# plt.subplot(1, 2, 2)
+# plt.plot(training_accuracy, label='Training Accuracy')
+# plt.plot(validation_accuracy, label='Validation Accuracy')
+# plt.xlabel('Epoch')
+# plt.ylabel('Accuracy')
+# plt.title('Training and Validation Accuracy')
+# plt.legend()
 
-# Plot training and validation accuracy
-plt.subplot(1, 2, 2)
-plt.plot(training_accuracy, label='Training Accuracy')
-plt.plot(validation_accuracy, label='Validation Accuracy')
-plt.xlabel('Epoch')
-plt.ylabel('Accuracy')
-plt.title('Training and Validation Accuracy')
-plt.legend()
+# plt.tight_layout()
+# plt.show()
 
-plt.tight_layout()
-plt.show()
-
-
-# Evaluate Performance
+"""
+Model Evaluation
+"""
 pre = Precision()
 recall = Recall()
 acc = SparseCategoricalAccuracy()
