@@ -4,12 +4,12 @@ import os
 from joblib import dump
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, classification_report
 from skimage.feature import hog
 from skimage import exposure
 
 # Data preparation
-data_dir = 'datasets'
+data_dir = 'waste_datasets'
 class_names = sorted(os.listdir(data_dir))
 
 X = []
@@ -55,11 +55,14 @@ svm_classifier.fit(X_train, y_train)
 # Evaluate classifier
 y_pred = svm_classifier.predict(X_test)
 accuracy = accuracy_score(y_test, y_pred)
-print("Accuracy:", accuracy)
+print("Overall Accuracy:", accuracy)
+
+# Print classification report for detailed accuracy of each class
+print(classification_report(y_test, y_pred, target_names=class_names))
 
 # Saving the model
 # Define the file path where you want to save the model
-model_file_path = "models/svm_model.joblib"
+model_file_path = "models/svm_waste_model.joblib"
 
 # Save the trained SVM classifier model
 dump(svm_classifier, model_file_path)
