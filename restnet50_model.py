@@ -161,4 +161,4 @@ for class_name, metrics in class_metrics.items():
     accuracy = metrics['accuracy'].result().numpy()
     print(f'Class: {class_name} - Precision: {precision}, Recall: {recall}, Accuracy: {accuracy}')
 
-model.save(os.path.join('models', 'demoModel3.h5'))
+model.save(os.path.join('models', 'restnet50_model.h5'))
