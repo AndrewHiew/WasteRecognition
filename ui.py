@@ -6,10 +6,9 @@ import numpy as np
 import os
 import tensorflow as tf
 import concurrent.futures
-import joblib  # Assuming you are using joblib to load SVM models
-from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, WebRtcMode, ClientSettings
-import av
+import joblib
 from skimage.feature import hog
+import matplotlib.pyplot as plt
 
 # Define a function to load the selected model
 def load_selected_model(model_path):
@@ -20,7 +19,7 @@ def load_selected_model(model_path):
     else:
         raise ValueError("Unsupported model format")
 
-# Define a function to predict image
+# Predict image method
 def predict_image(image, model, model_type):
     resize = tf.image.resize(image, (256, 256))
     class_names = ['compostable', 'nonrecyclable', 'recyclable']
@@ -45,12 +44,21 @@ def predict_image(image, model, model_type):
         predicted_class = class_names[predictions]
         return predicted_class, None, None
 
-# Define a class to capture video frames
-class VideoTransformer(VideoTransformerBase):
-    def transform(self, frame):
-        img = frame.to_ndarray(format="bgr24")
-        st.session_state.image_data = img
-        return img
+# Function to resize image using matplotlib (For Displaying, not Data Preprocessing)
+def resize_image(image, size=(400, 400)):
+    fig, ax = plt.subplots()
+    ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    ax.axis('off')
+    fig.set_size_inches(4, 4)  # 4 inches by 4 inches
+    fig.tight_layout(pad=0)
+
+    # Convert the Matplotlib figure to a numpy array
+    fig.canvas.draw()
+    resized_image = np.frombuffer(fig.canvas.tostring_rgb(), dtype=np.uint8)
+    resized_image = resized_image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+    
+    plt.close(fig)
+    return resized_image
 
 # Define the main model function
 def model():
@@ -59,7 +67,7 @@ def model():
     # Model selection
     model_list = {
         'VGG19 Model': os.path.join('models', 'vgg19_model.h5'),
-        'Waste Recognition Model': os.path.join('models', 'restnet50_model.h5'),
+        'Waste Recognition Model': os.path.join('models', 'restnet50_model2.h5'),
         'SVM Waste Model': os.path.join('models', 'svm_waste_model.joblib')
     }
     selected_model_name = st.sidebar.selectbox("Select a model", list(model_list.keys()))
@@ -75,18 +83,15 @@ def model():
     modal = Modal(key="file_uploader", title="Upload Files")
 
     upload_btn = st.sidebar.button("Upload File")
-    live_picture = st.sidebar.button("Camera")
 
-    if live_picture:
-        webrtc_streamer(
-            key="example",
-            mode=WebRtcMode.SENDRECV,
-            client_settings=ClientSettings(
-                rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
-                media_stream_constraints={"video": True, "audio": False},
-            ),
-            video_transformer_factory=VideoTransformer,
-        )
+    if st.sidebar.toggle("Camera"):
+        picture = st.sidebar.camera_input("Take a picture")
+
+        if picture:
+            with st.spinner("Processing Image"):
+                image = cv2.imdecode(np.frombuffer(picture.read(), np.uint8), cv2.IMREAD_COLOR)
+                st.session_state.image_data = image
+                st.rerun()  
 
     if upload_btn:
         modal.open()
@@ -97,8 +102,11 @@ def model():
             if st.button("Ok"):
                 if uploaded_image is not None:
                     image = cv2.imdecode(np.frombuffer(uploaded_image.read(), np.uint8), cv2.IMREAD_COLOR)
-                    st.session_state.image_data = image  # Store image data in session state
-                    modal.close()
+                    if image is not None:
+                        st.session_state.image_data = image
+                        modal.close()
+                    else:
+                        st.error("Error: Failed to process the uploaded image.")
                 else:
                     modal.close()
 
@@ -117,8 +125,11 @@ def model():
                 # Interpret predictions
                 if st.session_state.model_type == 'keras':
                     with text_container:
-                        # Display the image with a fixed size
-                        st.image(image, caption='Uploaded Image', use_column_width=False, width=400)
+                        # Resize the image before displaying
+                        resized_image = resize_image(image)
+
+                        # Display the resized image
+                        st.image(resized_image, caption='Processed Image', use_column_width=False, width=400)
 
                         # Display predicted class and confidence
                         st.write("Predicted Class: ", predicted_class)
@@ -126,8 +137,11 @@ def model():
                         st.write("Confidence: ", confidence)
                 elif st.session_state.model_type == 'svm':
                     with text_container:
-                        # Display the image with a fixed size
-                        st.image(image, caption='Uploaded Image', use_column_width=False, width=400)
+                        # Resize the image before displaying
+                        resized_image = resize_image(image)
+
+                        # Display the resized image
+                        st.image(resized_image, caption='Processed Image', use_column_width=False, width=400)
 
                         # Display predicted class for SVM
                         st.write("Predicted Class: ", predicted_class)
