@@ -49,7 +49,7 @@ def resize_image(image, size=(400, 400)):
     fig, ax = plt.subplots()
     ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
     ax.axis('off')
-    fig.set_size_inches(4, 4)  # 4 inches by 4 inches
+    fig.set_size_inches(4, 4)
     fig.tight_layout(pad=0)
 
     # Convert the Matplotlib figure to a numpy array
@@ -60,14 +60,14 @@ def resize_image(image, size=(400, 400)):
     plt.close(fig)
     return resized_image
 
-# Define the main model function
+# Model Main Function
 def model():
     text_container = st.container()
 
     # Model selection
     model_list = {
         'VGG19 Model': os.path.join('models', 'vgg19_model.h5'),
-        'Waste Recognition Model': os.path.join('models', 'restnet50_model2.h5'),
+        'Waste Recognition Model': os.path.join('models', 'restnet50_model.h5'),
         'SVM Waste Model': os.path.join('models', 'svm_waste_model.joblib')
     }
     selected_model_name = st.sidebar.selectbox("Select a model", list(model_list.keys()))
@@ -79,14 +79,14 @@ def model():
         st.session_state.model_path = selected_model_path
         st.session_state.model_type = 'keras' if selected_model_path.endswith('.h5') else 'svm'
 
+    # changing the header title
     st.session_state.maintitle = "Image Classifier: " + selected_model_path[7:]
+
+    # Define Popup Window
     modal = Modal(key="file_uploader", title="Upload Files")
-
     upload_btn = st.sidebar.button("Upload File")
-
     if st.sidebar.toggle("Camera"):
         picture = st.sidebar.camera_input("Take a picture")
-
         if picture:
             with st.spinner("Processing Image"):
                 image = cv2.imdecode(np.frombuffer(picture.read(), np.uint8), cv2.IMREAD_COLOR)
@@ -110,6 +110,7 @@ def model():
                 else:
                     modal.close()
 
+    # Predict the Image using the current loaded model
     if "image_data" in st.session_state:
         image = st.session_state.image_data
 
