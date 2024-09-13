@@ -15,6 +15,7 @@ The following files are used to train the Model.
 - vgg19_model.py
 - restnet50_model.py
 - svm_model.py
+
 After training, the quantised model should be under this directory. models/YOUR_MODEL
 
 ## Testing the Model
