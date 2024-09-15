@@ -67,7 +67,7 @@ def model():
     # Model selection
     model_list = {
         'VGG19 Model': os.path.join('models', 'vgg19_model.h5'),
-        'Waste Recognition Model': os.path.join('models', 'restnet50_model.h5'),
+        'RestNet50 Model': os.path.join('models', 'restnet50_model.h5'),
         'SVM Waste Model': os.path.join('models', 'svm_waste_model.joblib')
     }
     selected_model_name = st.sidebar.selectbox("Select a model", list(model_list.keys()))
